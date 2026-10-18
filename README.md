@@ -10,7 +10,7 @@ Complete source of the interactive procurement prototype built in this conversat
    Then visit http://localhost:8000
    On Windows, use py -m http.server 8000 --bind 127.0.0.1 if needed.
 
-No npm install, build step, external assets, API keys, or third-party dependencies are required. HTML, CSS, JavaScript, and fictional seed data are all in index.html.
+No npm install, build step, API keys, or third-party packages are required to use the demo. The app consists of `index.html` and the local `procurement-policy.js` script; keep both files together when deploying.
 
 ## Included functionality
 - Procurement dashboard with calculated spend and seat savings
@@ -18,7 +18,7 @@ No npm install, build step, external assets, API keys, or third-party dependenci
 - Comparison of 2 to 4 selected vendors
 - Vendor detail and fictional evidence summaries
 - New procurement request form
-- Approve/reject controls with rationale and review attestation
+- Approve/reject controls with rationale and review attestation, backed by testable client-side policy checks
 - High-risk approval blocking
 - Renewal priority list
 - Rule-based procurement copilot
@@ -40,6 +40,20 @@ All vendors' contract values, usage, risk assessments, renewal windows, and fit 
 
 Changes are stored in this browser's localStorage under pg-v1 and pg-log. They are not shared between devices or users. Clear those two keys in browser developer tools to reset the demo. Do not enter confidential procurement data.
 
+## Policy checks and tests
+
+Request submission validates vendor name, whole-dollar budget, seat count, team and business justification before changing browser-local state. Approval decisions require a rationale and review attestation; high-risk vendors cannot be approved. These checks are isolated in `procurement-policy.js` so the same behavior can be verified without a browser.
+
+To run the automated tests, install Node.js 22 or newer and execute:
+
+```sh
+node --test tests/*.test.js
+```
+
+The tests cover input boundaries, approval rules, high-risk blocking, and syntax/integration checks for the browser entry point. GitHub Actions runs the same tests on pushes and pull requests. The policy is a **client-side demonstration**, not a security boundary: a production API must independently enforce all rules and authorization.
+
+`SOURCE_SHA256.txt` documents the **original prototype export** and does not describe the current, subsequently modified `index.html`; use Git history for revision integrity.
+
 ## Scope and limitations
 This ZIP contains the complete implemented frontend prototype, not a production enterprise AI platform. The copilot uses deterministic keyword matching and arithmetic; it does not call an LLM. Evidence entries are fictional descriptions, not uploaded documents or verified citations. Approval controls are UI simulations, not secure authorization. The activity log is editable local storage, not an immutable audit log.
 
@@ -56,7 +70,7 @@ Potential savings assume linear per-seat pricing, exclude Snowflake usage-based 
 6. Validate security, accessibility, data retention, backups, and recovery before enterprise use.
 
 ## Deployment
-Upload index.html to any static host. No server-side runtime is required for this prototype. Configure authentication separately if the deployment must be private.
+Upload `index.html` and `procurement-policy.js` to the same directory on any static host. No server-side runtime is required for this prototype. Configure authentication separately if the deployment must be private.
 
 ## Verification
-JavaScript syntax was checked during creation. ZIP integrity and source-byte parity were checked during export. Browser-based interaction and visual testing were not available in the creation environment.
+Original ZIP integrity and source-byte parity were checked during export. The extracted policy module is covered by Node.js unit tests, and the HTML inline script is syntax-checked by an integration test. Full browser interaction and visual regression tests have not yet been automated.
